@@ -1,21 +1,8 @@
-# Next.js template
+# 開発ページについて
 
-This is a Next.js template with shadcn/ui.
+様々な店舗で日々行われる商品名や価格の登録業務において。
+徹底的なUIの最適化により、マニュアル不要の直感的な操作性を実現しました。
 
-## Adding components
-
-To add components to your app, run the following command:
-
-```bash
-npx shadcn@latest add button
-```
-
-This will place the ui components in the `components` directory.
-
-## Using components
-
-To use the components in your app, import them as follows:
-
-```tsx
-import { Button } from "@/components/ui/button";
-```
+さらに、増加する外国人スタッフをサポートするため、言語選択機能（多言語対応）を実装しています。
+言語の壁を取り払うことで、外国人アルバイトの方でも短期間で業務を習得でき、店舗の教育コスト削減と、
+多様な人材が即戦力として活躍できる環境づくりに貢献します。
