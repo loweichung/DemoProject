@@ -7,7 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-// 1. 定義驗證規則 (Schema)
+// 定義驗證規則
 const registerSchema = z.object({
   name: z.string()
     .min(1, "氏名を入力してください")
@@ -32,6 +32,20 @@ const registerSchema = z.object({
 // 定義 TypeScript 型別
 type RegisterFormData = z.infer<typeof registerSchema>;
 
+// 定義"必須"文字UI
+const RequiredBadge = () => (
+  <span className="ml-2 bg-red-700 text-white text-[11px] px-1.5 py-0.5 rounded-sm font-bold">
+    必須
+  </span>
+);
+
+// 定義"任意"文字UI
+const OptionalBadge = () => (
+  <span className="ml-2 bg-gray-400 text-white text-[11px] px-1.5 py-0.5 rounded-sm font-bold">
+    任意
+  </span>
+);
+
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -41,17 +55,26 @@ export default function RegisterPage() {
     formState: { errors },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
-    mode: "onBlur", // 當使用者離開輸入框時觸發驗證
+    mode: "onBlur",
   });
 
   // 處理提交邏輯
   const onSubmit = (data: RegisterFormData) => {
-    console.log("提出しているデータ：", data);
-    
-    alert("アカウント作成完了！ホームページに戻ります");
-    
-    // 跳轉回主頁
+    try {
+    console.log("提交的原始資料：", data);
+
+    // 將資料轉為 JSON 字串並存入 localStorage
+    localStorage.setItem('userData', JSON.stringify(data));
+
+    // 驗證是否真的存進去了
+    const check = localStorage.getItem('userData');
+    console.log("檢查儲存結果：", check);
+
+    alert("登録が完了しました！");
     router.push('/');
+  } catch (error) {
+    console.error("儲存失敗：", error);
+  }
   };
 
   // 統一處理樣式：若有錯誤則變紅
@@ -81,7 +104,7 @@ export default function RegisterPage() {
           
           {/* 姓名 */}
           <div>
-            <label className="block text-sm font-semibold mb-2">氏名 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">お名前 <RequiredBadge/></label>
             <input 
               {...register("name")} 
               className={getFieldStyle("name")} 
@@ -91,7 +114,7 @@ export default function RegisterPage() {
           </div>
           {/* 日文發音 */}
           <div>
-            <label className="block text-sm font-semibold mb-2">フリガナ<span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">お名前(カナ) <RequiredBadge/></label>
             <input
                 {...register("katakana")}
                 className={getFieldStyle("katakana")}
@@ -103,7 +126,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 性別 */}
             <div>
-              <label className="block text-sm font-semibold mb-2">性別 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-gray-700">性別 <RequiredBadge/></label>
               <select {...register("gender")} className={getFieldStyle("gender")}>
                 <option value="">選択してください</option>
                 <option value="male">男性</option>
@@ -115,7 +138,7 @@ export default function RegisterPage() {
 
             {/* 出生年月日 */}
             <div>
-              <label className="block text-sm font-semibold mb-2">生年月日 <span className="text-red-500">*</span></label>
+              <label className="block text-sm font-semibold mb-2 text-gray-700">生年月日 <RequiredBadge/></label>
               <input type="date" {...register("birthday")} className={getFieldStyle("birthday")} />
               {errors.birthday && <p className="text-red-500 text-xs mt-1 font-medium">{errors.birthday.message}</p>}
             </div>
@@ -123,7 +146,7 @@ export default function RegisterPage() {
 
           {/* 信箱 */}
           <div>
-            <label className="block text-sm font-semibold mb-2">メールアドレス <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">メールアドレス <RequiredBadge/></label>
             <input 
               type="email" 
               {...register("email")} 
@@ -135,18 +158,18 @@ export default function RegisterPage() {
 
           {/* 地址 */}
           <div>
-            <label className="block text-sm font-semibold mb-2">住所 <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">住所 <RequiredBadge/></label>
             <input 
               {...register("address")} 
               className={getFieldStyle("address")} 
-              placeholder="請輸入通訊地址" 
+              placeholder="住所を入力してください" 
             />
             {errors.address && <p className="text-red-500 text-xs mt-1 font-medium">{errors.address.message}</p>}
           </div>
 
           {/* 密碼 */}
           <div>
-            <label className="block text-sm font-semibold mb-2">パスワード <span className="text-red-500">*</span></label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">パスワード <RequiredBadge/></label>
             <input 
               type="password" 
               {...register("password")} 
@@ -158,12 +181,12 @@ export default function RegisterPage() {
 
           {/* 備註 */}
           <div>
-            <label className="block text-sm font-semibold mb-2 text-gray-700">備考 (ご自由に入力してください)</label>
+            <label className="block text-sm font-semibold mb-2 text-gray-700">備考 <OptionalBadge/></label>
             <textarea 
               {...register("note")} 
               className={getFieldStyle("note")} 
               rows={3} 
-              placeholder="他に入れたいこと" 
+              placeholder="ご自由に入力してください" 
             />
           </div>
 
